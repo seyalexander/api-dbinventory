@@ -183,8 +183,4 @@ public class CargaExcels {
 	public void setStockF(Double stockF) {
 		this.stockF = stockF;
 	}
-
-
-
-
 }
