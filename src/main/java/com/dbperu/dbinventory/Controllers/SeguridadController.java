@@ -39,7 +39,7 @@ public class SeguridadController {
         return seguridadService.listaSeguridad();
     }
 
-    @RequestMapping(value = "/Seguridad/login", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    /*@RequestMapping(value = "/Seguridad/login", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
     public ResponseEntity<?> login(@RequestParam String rucempresa, @RequestParam String idUsuario, @RequestParam String contrasena) {
         Optional<Seguridad> usuario = seguridadService.validarLogin(rucempresa, idUsuario, contrasena);
 
@@ -67,7 +67,36 @@ public class SeguridadController {
         public String getMessage() {
             return message;
         }
+    }*/
+    
+    @RequestMapping(value = "/Seguridad/login", method = RequestMethod.POST, produces = "application/json;charset=UTF-8")
+    public ResponseEntity<?> login(
+            @RequestParam String rucempresa,
+            @RequestParam String idUsuario,
+            @RequestParam String contrasena) {
+
+        Optional<Seguridad> usuario = seguridadService.validarLogin(rucempresa, idUsuario, contrasena);
+
+        if (usuario.isPresent()) {
+            Seguridad usuarioEncontrado = usuario.get();
+
+            if (!"1".equals(usuarioEncontrado.getEstado())) {
+                return ResponseEntity.status(403).body(Collections.singletonMap("message", "Usuario inactivo."));
+            }
+
+            String token = seguridadService.generarToken(idUsuario);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("token", token);
+            response.put("usuario", usuarioEncontrado);
+            response.put("message", "Login exitoso.");
+
+            return ResponseEntity.ok(response);
+        } else {
+            return ResponseEntity.status(401).body(Collections.singletonMap("message", "Credenciales incorrectas."));
+        }
     }
+
 
     private final Set<String> tokenBlacklist = new HashSet<>();
 

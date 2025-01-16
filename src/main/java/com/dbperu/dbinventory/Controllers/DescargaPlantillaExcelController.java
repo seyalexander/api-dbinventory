@@ -2,6 +2,7 @@ package com.dbperu.dbinventory.Controllers;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -11,6 +12,7 @@ import java.util.Map;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellType;
+import org.apache.poi.ss.usermodel.DateUtil;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -61,7 +63,7 @@ public class DescargaPlantillaExcelController {
     @PostMapping("/cargarExcel")
     public ResponseEntity<Map<String, Object>> cargarExcel(@RequestParam("file") MultipartFile file,
                                                            @RequestParam("rucempresa") String rucempresa,
-                                                           @RequestParam("id") Long id) throws IOException, InvalidFormatException {
+                                                           @RequestParam("id") Long id) {
         Map<String, Object> response = new HashMap<>();
         try {
             List<CargaExcels> cargaExcelsList = procesarExcel(file, rucempresa, id);
@@ -78,128 +80,118 @@ public class DescargaPlantillaExcelController {
         }
     }
 
-
-
-
-
     private List<CargaExcels> procesarExcel(MultipartFile file, String rucempresa, Long id) throws IOException, InvalidFormatException {
         List<CargaExcels> cargaExcelsList = new ArrayList<>();
         Workbook workbook = new XSSFWorkbook(file.getInputStream());
         Sheet sheet = workbook.getSheetAt(0);
 
         Iterator<Row> rowIterator = sheet.iterator();
-        rowIterator.next();
-
+        boolean isFirstRow = true;
         double nroItemCounter = 1;
 
         while (rowIterator.hasNext()) {
             Row row = rowIterator.next();
-            CargaExcels cargaExcels = new CargaExcels();
 
-            cargaExcels.setRucempresa(rucempresa);
-            cargaExcels.setId(id);
-            cargaExcels.setNroitem(nroItemCounter++);
-
-            cargaExcels.setAlmacen(row.getCell(1).getStringCellValue());
-            cargaExcels.setSucursal(row.getCell(2).getStringCellValue());
-
-            if (row.getCell(3) != null) {
-                Cell cell = row.getCell(3);
-                if (cell.getCellType() == CellType.STRING) {
-                    cargaExcels.setZona(cell.getStringCellValue());
-                } else if (cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setZona(String.valueOf((int) cell.getNumericCellValue()));
-                } else {
-                    cargaExcels.setZona("");
-                }
+            if (isFirstRow) {
+                isFirstRow = false;
+                continue; 
             }
 
-            if (row.getCell(4) != null) {
-                Cell cell = row.getCell(4);
-                if (cell.getCellType() == CellType.STRING) {
-                    cargaExcels.setPasillo(cell.getStringCellValue());
-                } else if (cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setPasillo(String.valueOf((int) cell.getNumericCellValue()));
-                } else {
-                    cargaExcels.setPasillo("");
-                }
+            CargaExcels cargaExcels = mapRowToCargaExcels(row);
+            if (cargaExcels != null) {
+                cargaExcels.setRucempresa(rucempresa);
+                cargaExcels.setId(id);
+                cargaExcels.setNroitem(nroItemCounter++);
+                cargaExcelsList.add(cargaExcels);
             }
-
-            cargaExcels.setRack(row.getCell(5).getStringCellValue());
-            cargaExcels.setUbicacion(row.getCell(6).getStringCellValue());
-
-            if (row.getCell(7) != null) {
-                Cell cell = row.getCell(7);
-                if (cell.getCellType() == CellType.STRING) {
-                    cargaExcels.setEsagrupado(cell.getStringCellValue());
-                } else if (cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setEsagrupado(String.valueOf((int) cell.getNumericCellValue()));
-                } else {
-                    cargaExcels.setEsagrupado("");
-                }
-            }
-
-            if (row.getCell(8) != null) {
-                Cell cell = row.getCell(8);
-                if (cell.getCellType() == CellType.STRING) {
-                    cargaExcels.setCodigogrupo(cell.getStringCellValue());
-                } else if (cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setCodigogrupo(String.valueOf((int) cell.getNumericCellValue()));
-                } else {
-                    cargaExcels.setCodigogrupo("");
-                }
-            }
-
-            if (row.getCell(9) != null) {
-                Cell cell = row.getCell(9);
-                if (cell.getCellType() == CellType.STRING) {
-                    cargaExcels.setCodigoproducto(cell.getStringCellValue());
-                } else if (cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setCodigoproducto(String.valueOf((int) cell.getNumericCellValue()));
-                } else {
-                    cargaExcels.setCodigoproducto("");
-                }
-            }
-
-            if (row.getCell(10) != null) {
-                Cell cell = row.getCell(10);
-                if (cell.getCellType() == CellType.STRING) {
-                    cargaExcels.setCodigobarra(cell.getStringCellValue());
-                } else if (cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setCodigobarra(String.valueOf((int) cell.getNumericCellValue()));
-                } else {
-                    cargaExcels.setCodigobarra("");
-                }
-            }
-
-            cargaExcels.setDescripcionProducto(row.getCell(11).getStringCellValue());
-            cargaExcels.setUnidad(row.getCell(12).getStringCellValue());
-
-            if (row.getCell(13) != null) {
-                Cell cell = row.getCell(13);
-                if (cell.getCellType() == CellType.STRING || cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setStockL(cell.getNumericCellValue());
-                } else {
-                    cargaExcels.setStockL(0.0);
-                }
-            }
-
-            if (row.getCell(14) != null) {
-                Cell cell = row.getCell(14);
-                if (cell.getCellType() == CellType.STRING || cell.getCellType() == CellType.NUMERIC) {
-                    cargaExcels.setStockF(cell.getNumericCellValue());
-                } else {
-                    cargaExcels.setStockF(0.0);
-                }
-            }
-
-            // Agregar el objeto a la lista
-            cargaExcelsList.add(cargaExcels);
         }
 
         workbook.close();
         return cargaExcelsList;
     }
+    
+    private CargaExcels mapRowToCargaExcels(Row row) {
+        if (row == null) {
+            return null;
+        }
+
+        boolean isEmptyRow = true;
+        for (int i = 0; i < row.getLastCellNum(); i++) {
+            Cell cell = row.getCell(i);
+            if (cell != null && !getCellValueAsString(cell).trim().isEmpty()) {
+                isEmptyRow = false;
+                break;
+            }
+        }
+
+        if (isEmptyRow) {
+            return null;
+        }
+
+        CargaExcels cargaExcels = new CargaExcels();
+        cargaExcels.setAlmacen(getCellValueAsString(row.getCell(1)));
+        cargaExcels.setSucursal(getCellValueAsString(row.getCell(2)));
+        cargaExcels.setZona(getCellValueAsString(row.getCell(3)));
+        cargaExcels.setPasillo(getCellValueAsString(row.getCell(4)));
+        cargaExcels.setRack(getCellValueAsString(row.getCell(5)));
+        cargaExcels.setUbicacion(getCellValueAsString(row.getCell(6)));
+        cargaExcels.setEsagrupado(getCellValueAsString(row.getCell(7)));
+        cargaExcels.setCodigogrupo(getCellValueAsString(row.getCell(8)));
+        cargaExcels.setCodigoproducto(getCellValueAsString(row.getCell(9)));
+        cargaExcels.setCodigobarra(getCellValueAsString(row.getCell(10)));
+        cargaExcels.setDescripcionProducto(getCellValueAsString(row.getCell(11)));
+        cargaExcels.setUnidad(getCellValueAsString(row.getCell(12)));
+        cargaExcels.setStockL(getCellValueAsDouble(row.getCell(13)));
+        cargaExcels.setStockF(getCellValueAsDouble(row.getCell(14)));
+
+        return cargaExcels;
+    }
+    
+    private String getCellValueAsString(Cell cell) {
+        if (cell == null) {
+            return "";
+        }
+
+        switch (cell.getCellType()) {
+            case STRING:
+                return cell.getStringCellValue().trim();
+            case NUMERIC:
+                if (DateUtil.isCellDateFormatted(cell)) {
+                    return new SimpleDateFormat("yyyy-MM-dd").format(cell.getDateCellValue());
+                } else {
+                    return String.valueOf((int) cell.getNumericCellValue());
+                }
+            case ERROR:
+                return "Error en la celda";
+            case BLANK:
+            case _NONE:
+            default:
+                return "";
+        }
+    }
+
+    private double getCellValueAsDouble(Cell cell) {
+        if (cell == null) {
+            return 0.0;
+        }
+
+        switch (cell.getCellType()) {
+            case NUMERIC:
+                return cell.getNumericCellValue();
+            case STRING:
+                try {
+                    return Double.parseDouble(cell.getStringCellValue().trim());
+                } catch (NumberFormatException e) {
+                    return 0.0;
+                }
+            case BLANK:
+            case _NONE:
+            default:
+                return 0.0;
+        }
+    }
+    
+
 
 
 }

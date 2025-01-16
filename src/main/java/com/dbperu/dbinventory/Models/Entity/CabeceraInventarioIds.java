@@ -10,17 +10,14 @@ public class CabeceraInventarioIds {
 	 private String rucempresa;
 	    private Long idcarga;
 
-	    // Constructor vacío (obligatorio para JPA)
 	    public CabeceraInventarioIds() {
 	    }
 
-	    // Constructor con parámetros
 	    public CabeceraInventarioIds(String rucempresa, Long idcarga) {
 	        this.rucempresa = rucempresa;
 	        this.idcarga = idcarga;
 	    }
 
-	    // Getters y setters
 	    public String getRucempresa() {
 	        return rucempresa;
 	    }
@@ -37,7 +34,6 @@ public class CabeceraInventarioIds {
 	        this.idcarga = idcarga;
 	    }
 
-	    // Implementar equals y hashCode
 	    @Override
 	    public boolean equals(Object o) {
 	        if (this == o) return true;

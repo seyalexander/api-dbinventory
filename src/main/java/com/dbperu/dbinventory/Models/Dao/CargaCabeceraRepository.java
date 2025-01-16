@@ -1,5 +1,6 @@
 package com.dbperu.dbinventory.Models.Dao;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.apache.ibatis.annotations.Param;
@@ -18,4 +19,6 @@ public interface CargaCabeceraRepository extends JpaRepository<CabeceraCargaExce
 
 	@Query("SELECT MAX(c.idcarga) FROM CabeceraCargaExcels c  WHERE c.rucempresa = :rucempresa")
 	Optional<Long> findByRucEmpresa(@Param("rucempresa") String rucempresa);
+	
+
 }

@@ -67,6 +67,9 @@ public class CargaExcels {
 
     @Column(name = "stockfisico")
     private Double stockF;
+    
+    @Column(name = "stockresultante")
+    private Double stockresultante;
 
     @ManyToOne
     @JoinColumns({
@@ -183,4 +186,17 @@ public class CargaExcels {
 	public void setStockF(Double stockF) {
 		this.stockF = stockF;
 	}
+	public Double getStockresultante() {
+		return stockresultante;
+	}
+	public void setStockresultante(Double stockresultante) {
+		this.stockresultante = stockresultante;
+	}
+	public CabeceraCargaExcels getCabecera() {
+		return cabecera;
+	}
+	public void setCabecera(CabeceraCargaExcels cabecera) {
+		this.cabecera = cabecera;
+	}
+	
 }

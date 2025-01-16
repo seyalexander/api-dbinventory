@@ -10,5 +10,4 @@ public interface ICabeceraCargaService {
 	public CabeceraCargaExcels registrarCabeceraCargaExcels(CabeceraCargaExcels cabeceraCargaExcels);
 	public Long obtenerUltimoIdCarga(String rucempresa);
 	public CabeceraCargaExcels actualizarUsuarioAsignado(String rucempresa, Long idcarga, String usuarioAsignado);
-
 }
